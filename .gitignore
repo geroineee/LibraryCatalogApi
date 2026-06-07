@@ -2,8 +2,8 @@
 bin/
 obj/
 
-# Data
-data/
+# Database
+database/
 *.db
 
 # IDE

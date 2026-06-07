@@ -45,14 +45,12 @@ namespace WebLibraryApi.Services
             return result;
         }
 
-        public async Task<BookResponse> GetBookByIdAsync(int id)
+        public async Task<BookResponse?> GetBookByIdAsync(int id)
         {
             var book = await _repository.GetByIdAsync(id);
-
-            if (book is null)
-                throw new NotFoundException($"Book {id} does not exist.");
-
-            return book.ToResponse();
+            return book is not null
+                ? book.ToResponse()
+                : null;
         }
 
         public async Task DeleteBookAsync(int id)
@@ -106,7 +104,6 @@ namespace WebLibraryApi.Services
         public async Task<BookResponse> UpdateBookAsync(int id, BookRequest request)
         {
             var book = request.ToEntity(id);
-
             var existing = await _repository.GetByIdAsync(book.Id);
 
             if (existing is null)

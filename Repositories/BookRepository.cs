@@ -1,24 +1,22 @@
-﻿using Microsoft.Data.Sqlite;
-using Dapper;
-using System.Diagnostics.CodeAnalysis;
+﻿using Dapper;
 using WebLibraryApi.Models.Book;
+using WebLibraryApi.Data;
 
 namespace WebLibraryApi.Repositories
 {
     public class BookRepository : IBookRepository
     {
-        private readonly string _connectionString;
-        public BookRepository(IConfiguration configuration)
+        private readonly IDbConnectionFactory _factory;
+        public BookRepository(IDbConnectionFactory factory)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection")
-                ?? throw new ArgumentNullException(nameof(_connectionString));
+            _factory = factory;
         }
 
         public async Task<IEnumerable<Book>> GetAsync(int offset, int limit, BookFilter filter)
         {
             (string dataSql, DynamicParameters parameters) = BuildSelectQuery(offset, limit, filter);
 
-            using var connection = new SqliteConnection(_connectionString);
+            using var connection = _factory.Create();
             return await connection.QueryAsync<Book>(dataSql, parameters);
         }
 
@@ -26,7 +24,7 @@ namespace WebLibraryApi.Repositories
         {
             (string sql, DynamicParameters parameters) = BuildCountQuery(filter);
 
-            using var connection = new SqliteConnection(_connectionString);
+            using var connection = _factory.Create();
             return await connection.ExecuteScalarAsync<int>(sql, parameters);
         }
 
@@ -34,7 +32,7 @@ namespace WebLibraryApi.Repositories
         {
             string sql = "SELECT * FROM book WHERE id = @Id";
 
-            using var connection = new SqliteConnection(_connectionString);
+            using var connection = _factory.Create();
             var book = await connection.QuerySingleOrDefaultAsync<Book>(sql, new {Id = id});
 
             return book;
@@ -44,7 +42,7 @@ namespace WebLibraryApi.Repositories
         {
             string sql = "SELECT * FROM book WHERE title = @Title";
 
-            using var connection = new SqliteConnection(_connectionString);
+            using var connection = _factory.Create();
             var book = await connection.QuerySingleOrDefaultAsync<Book>(sql, new { Title = title });
 
             return book;
@@ -53,7 +51,7 @@ namespace WebLibraryApi.Repositories
         {
             string sql = "SELECT EXISTS(SELECT 1 FROM book WHERE id = @Id)";
 
-            using var connection = new SqliteConnection(_connectionString);
+            using var connection = _factory.Create();
             return await connection.ExecuteScalarAsync<bool>(sql, new { Id = id });
         }
 
@@ -61,7 +59,7 @@ namespace WebLibraryApi.Repositories
         {
             string sql = "DELETE FROM book WHERE id = @Id";
 
-            using var connection = new SqliteConnection(_connectionString);
+            using var connection = _factory.Create();
             var result = await connection.ExecuteAsync(sql, new {Id = id});
 
             return result > 0;
@@ -71,7 +69,7 @@ namespace WebLibraryApi.Repositories
         {
             string sql = "UPDATE book SET is_available = @IsAvailable WHERE id = @Id";
 
-            using var connection = new SqliteConnection(_connectionString);
+            using var connection = _factory.Create();
             var result = await connection.ExecuteAsync(sql, new {IsAvailable = isAvailable, Id = id});
 
             return result > 0;
@@ -83,7 +81,7 @@ namespace WebLibraryApi.Repositories
                             VALUES (@Title, @Author, @PublishedYear, @Genre, @IsAvailable);
                             SELECT last_insert_rowid();";
 
-            using var connection = new SqliteConnection(_connectionString);
+            using var connection = _factory.Create();
             return await connection.QuerySingleOrDefaultAsync<int>(sql, book);
         }
 
@@ -97,7 +95,7 @@ namespace WebLibraryApi.Repositories
                                 is_available = @IsAvailable
                             WHERE id = @Id";
 
-            using var connection = new SqliteConnection(_connectionString);
+            using var connection = _factory.Create();
             int result = await connection.ExecuteAsync(sql, book);
 
             return result > 0;

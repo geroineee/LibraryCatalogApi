@@ -1,0 +1,17 @@
+# Database
+database/
+*.db
+*.db-journal
+
+# Build
+bin/
+obj/
+
+# IDE
+.vs/
+*.user
+*.suo
+
+# Git
+.git/
+.gitignore
