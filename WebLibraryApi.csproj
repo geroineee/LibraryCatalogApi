@@ -24,4 +24,8 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ExampleBooks\" />
+  </ItemGroup>
+
 </Project>

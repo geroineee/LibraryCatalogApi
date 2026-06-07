@@ -34,6 +34,23 @@ docker run -d -p 5000:8080 -v ./database:/app/database --name library-api-contai
 API: http://localhost:5000
 Swagger: http://localhost:5000/swagger
 
+## Начальные данные
+
+При первом запуске БД создаётся пустой. Чтобы заполнить тестовыми данными, необходимо переменную окружения `DB_SEED_FILE` с путём к SQL-файлу.
+
+Пример для Docker:
+```bash
+docker run -d -p 5000:8080 -v ./database:/app/database -e DB_SEED_FILE="database/SeedData.sql" --name library-api library-api
+```
+
+Пример для docker-compose.yml:
+```yaml
+environment:
+  - DB_SEED_FILE=database/SeedData.sql
+```
+
+Если переменная задана и таблица пуста — приложение выполнит SQL из указанного файла.
+
 ## Эндпоинты API
 
 | Метод | URL | Описание |

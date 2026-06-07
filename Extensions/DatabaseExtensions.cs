@@ -27,6 +27,21 @@ namespace WebLibraryApi.Extensions
                 genre TEXT,
                 is_available INTEGER NOT NULL
             )");
+
+            var seedRelativePath = Environment.GetEnvironmentVariable("DB_SEED_FILE");
+
+            if (seedRelativePath is null) 
+                return;
+
+            var sqlFilePath = Path.Combine(Directory.GetCurrentDirectory(), seedRelativePath);
+
+            int bookCount = connection.ExecuteScalar<int>("SELECT COUNT(*) FROM book");
+
+            if (bookCount == 0 && File.Exists(sqlFilePath))
+            {
+                var sql = File.ReadAllText(sqlFilePath);
+                connection.Execute(sql);
+            }
         }
     }
 }

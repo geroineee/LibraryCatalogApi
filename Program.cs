@@ -40,7 +40,8 @@ app.UseSwaggerUI();
 
 app.Configuration.EnsureDatabaseCreated();
 
-app.MapGet("/", () => "Welcome to home page!");
+app.MapGet("/", () => "Welcome to home page!")
+.WithSummary("Домашняя страница");
 
 app.MapGet("/api/books", async (
     IBookService bookService,
